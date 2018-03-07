@@ -20,6 +20,7 @@ module Foreign.Resource
   , ForeignWrite(..)
   , writeR
   , writeR'
+  , mkWritePassthrough
   , (.$=)
   , ($=)
   , (<$=)
@@ -76,7 +77,7 @@ genName' = liftIO . genName_ $ ()
 genNames' :: (MonadIO m, ForeignName r ()) => Int -> m [r]
 genNames' = liftIO . flip genNames_ ()
 
-class ForeignResource s a | s -> a where
+class ForeignResource s a where
   resource :: a -> Acquire s
 
 resource' :: ForeignResource s () => Acquire s
@@ -117,6 +118,9 @@ writeR s t = liftIO . writeR_ s t
 
 writeR' :: (MonadIO m, ForeignWrite s () w) => s -> w -> m s
 writeR' s = writeR s ()
+
+mkWritePassthrough :: Monad m => s -> (s -> w -> m ()) -> (w -> m s)
+mkWritePassthrough s f w = f s w >> return s
 
 infix 4 .$=
 (.$=) :: (MonadIO m, ForeignWrite s t w) => t -> w -> s -> m s
