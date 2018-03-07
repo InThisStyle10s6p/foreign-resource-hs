@@ -1,0 +1,38 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 587cc74ecad693ddda346453659ccb85b13b1c2e9494ad30602f3567f0b646c1
+
+name:           foreign-resource-hs
+version:        0.1.0.0
+description:    Please see the README on Github at <https://github.com/InThisStyle10s6p/foreign-resource-hs#readme>
+homepage:       https://github.com/https://github.com/InThisStyle10s6p/foreign-resource-hs#readme
+bug-reports:    https://github.com/https://github.com/InThisStyle10s6p/foreign-resource-hs/issues
+author:         In This Style 10/6
+maintainer:     In This Style 10/6
+copyright:      2018 In This Style 10/6
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+
+extra-source-files:
+    ChangeLog.md
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/https://github.com/InThisStyle10s6p/foreign-resource-hs
+
+library
+  hs-source-dirs:
+      lib
+  build-depends:
+      base >=4.7 && <5
+    , resourcet
+  exposed-modules:
+      Foreign.Resource
+  other-modules:
+      Paths_foreign_resource_hs
+  default-language: Haskell2010
