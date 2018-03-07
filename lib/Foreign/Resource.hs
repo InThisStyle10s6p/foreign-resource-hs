@@ -110,54 +110,54 @@ readR t = liftIO . readR_ t
 readR' :: (MonadIO m, ForeignRead () s r) => s -> m r
 readR' = readR ()
 
-class ForeignWrite s t w where
-  writeR_ :: s -> t -> w -> IO s
+class ForeignWrite t s w where
+  writeR_ :: t -> s -> w -> IO s
 
-writeR :: (MonadIO m, ForeignWrite s t w) => s -> t -> w -> m s
-writeR s t = liftIO . writeR_ s t
+writeR :: (MonadIO m, ForeignWrite t s w) => t -> s -> w -> m s
+writeR t s = liftIO . writeR_ t s
 
-writeR' :: (MonadIO m, ForeignWrite s () w) => s -> w -> m s
-writeR' s = writeR s ()
+writeR' :: (MonadIO m, ForeignWrite () s w) => s -> w -> m s
+writeR' = writeR ()
 
 mkWritePassthrough :: Monad m => s -> (s -> w -> m ()) -> (w -> m s)
 mkWritePassthrough s f w = f s w >> return s
 
 infix 4 .$=
-(.$=) :: (MonadIO m, ForeignWrite s t w) => t -> w -> s -> m s
-t .$= w = \s -> writeR s t w
+(.$=) :: (MonadIO m, ForeignWrite t s w) => t -> w -> s -> m s
+t .$= w = \s -> writeR t s w
 
 infix 4 $=
-($=) :: (MonadIO m, ForeignWrite s () w) => s -> w -> m ()
-s $= w = void (writeR s () w)
+($=) :: (MonadIO m, ForeignWrite () s w) => s -> w -> m ()
+s $= w = void (writeR () s w)
 
 infix 4 <$=
-(<$=) :: (MonadIO m, ForeignWrite s () w) => s -> w -> m s
-s <$= w = writeR s () w
+(<$=) :: (MonadIO m, ForeignWrite () s w) => s -> w -> m s
+(<$=) = writeR'
 
 infixl 1 ~&
 (~&) :: Functor f => s -> (s -> f s) -> f ()
 s ~& f = void (f s)
 
-class (ForeignRead s t a, ForeignWrite s t a) => ForeignUpdate s t a where
+class (ForeignRead t s a, ForeignWrite t s a) => ForeignUpdate t s a where
   updateR_ :: t -> (a -> IO a) -> s -> IO s
 
-  updateR_ t f s = readR_ s t >>= f >>= writeR_ s t
+  updateR_ t f s = readR_ t s >>= f >>= writeR_ t s
 
 
-updateR :: (MonadIO m, ForeignUpdate s t a) => t -> (a -> IO a) -> s -> m s
+updateR :: (MonadIO m, ForeignUpdate t s a) => t -> (a -> IO a) -> s -> m s
 updateR t f = liftIO . updateR_ t f
 
-updateR' :: (MonadIO m, ForeignUpdate s () a) => (a -> IO a) -> s -> m s
+updateR' :: (MonadIO m, ForeignUpdate () s a) => (a -> IO a) -> s -> m s
 updateR' = updateR ()
 
 infix 4 .$=%
-(.$=%) :: (MonadIO m, ForeignUpdate s t a) => t -> (a -> IO a) -> s -> m s
+(.$=%) :: (MonadIO m, ForeignUpdate t s a) => t -> (a -> IO a) -> s -> m s
 (.$=%) = updateR
 
 infix 4 <$=%
-(<$=%) :: (MonadIO m, ForeignUpdate s () a) => s -> (a -> IO a) -> m s
-s <$=% f = updateR () f s
+(<$=%) :: (MonadIO m, ForeignUpdate () s a) => s -> (a -> IO a) -> m s
+(<$=%) = flip updateR'
 
 infix 4 $=%
-($=%) :: (MonadIO m, ForeignUpdate s () a) => s -> (a -> IO a) -> m ()
-s $=% f = void (updateR () f s)
+($=%) :: (MonadIO m, ForeignUpdate () s a) => s -> (a -> IO a) -> m ()
+($=%) s = void . flip updateR' s
