@@ -101,14 +101,14 @@ withR a = with (resource a)
 withR' :: (MonadBaseControl IO m, ForeignResource s ()) => (s -> m b) -> m b
 withR' = with resource'
 
-class ForeignRead s t r | t -> r where
-  readR_ :: s -> t -> IO r
+class ForeignRead t s r where
+  readR_ :: t -> s -> IO r
 
-readR :: (MonadIO m, ForeignRead s t r) => s -> t -> m r
-readR s = liftIO . readR_ s
+readR :: (MonadIO m, ForeignRead t s r) => t -> s -> m r
+readR t = liftIO . readR_ t
 
-readR' :: (MonadIO m, ForeignRead s () r) => s -> m r
-readR' s = readR s ()
+readR' :: (MonadIO m, ForeignRead () s r) => s -> m r
+readR' = readR ()
 
 class ForeignWrite s t w where
   writeR_ :: s -> t -> w -> IO s
