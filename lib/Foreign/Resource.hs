@@ -119,8 +119,8 @@ writeR t s = liftIO . writeR_ t s
 writeR' :: (MonadIO m, ForeignWrite () s w) => s -> w -> m s
 writeR' = writeR ()
 
-mkWritePassthrough :: Monad m => s -> (s -> w -> m ()) -> (w -> m s)
-mkWritePassthrough s f w = f s w >> return s
+mkWritePassthrough :: Monad m => (s -> w -> m ()) -> s -> (w -> m s)
+mkWritePassthrough f s w = f s w >> return s
 
 infix 4 .$=
 (.$=) :: (MonadIO m, ForeignWrite t s w) => t -> w -> s -> m s
