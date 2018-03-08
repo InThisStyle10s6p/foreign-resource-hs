@@ -110,7 +110,7 @@ readR t = liftIO . readR_ t
 readR' :: (MonadIO m, ForeignRead () s r) => s -> m r
 readR' = readR ()
 
-class ForeignWrite t s w where
+class ForeignWrite t s w | t s -> w where
   writeR_ :: t -> s -> w -> IO s
 
 writeR :: (MonadIO m, ForeignWrite t s w) => t -> s -> w -> m s
