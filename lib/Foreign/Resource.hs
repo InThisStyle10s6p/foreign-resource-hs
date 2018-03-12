@@ -77,7 +77,7 @@ genName' = liftIO . genName_ $ ()
 genNames' :: (MonadIO m, ForeignName r ()) => Int -> m [r]
 genNames' = liftIO . flip genNames_ ()
 
-class ForeignResource s a where
+class ForeignResource s a | s -> a where
   resource :: a -> Acquire s
 
 resource' :: ForeignResource s () => Acquire s
